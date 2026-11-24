@@ -1,0 +1,9 @@
+data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+node_modules/
+android/.gradle/
+android/local.properties
+android/app/build/
+server

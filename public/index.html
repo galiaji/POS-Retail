@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f6f7f4">
+    <title>Toserba Lokal</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <section id="gate" class="gate">
+      <div class="gate-card">
+        <div class="brand-mark">TL</div>
+        <p class="eyebrow">TOKO ANDA, SATU TEMPAT</p>
+        <h1 id="gate-title">Selamat datang</h1>
+        <p id="gate-copy" class="muted">Masuk untuk mengelola operasional toserba.</p>
+        <form id="gate-form" class="stack">
+          <label for="username-input">Nama pengguna</label>
+          <input id="username-input" name="username" maxlength="40" autocomplete="username" value="pemilik" required>
+          <label id="pin-label" for="pin-input">PIN</label>
+          <input id="pin-input" name="pin" inputmode="numeric" pattern="[0-9]*" minlength="6" maxlength="12" type="password" autocomplete="current-password" required>
+          <button id="gate-submit" class="button primary" type="submit">Masuk</button>
+          <p id="gate-error" class="form-error" role="alert"></p>
+        </form>
+        <p class="gate-footnote">Data tersimpan di komputer toko dan diakses melalui Wi-Fi lokal.</p>
+      </div>
+    </section>
+
+    <div id="app" class="app-shell hidden">
+      <aside class="sidebar">
+        <a class="brand" href="#" data-view="dashboard">
+          <span class="brand-mark small">TL</span>
+          <span><strong>Toserba</strong><small>LOKAL</small></span>
+        </a>
+        <div class="nav-caption">MENU UTAMA</div>
+        <nav id="navigation" class="navigation" aria-label="Navigasi utama">
+          <button class="nav-link active" data-view="dashboard" aria-label="Ringkasan"><span class="nav-icon">⌂</span><span class="nav-label"><span class="nav-label-full">Ringkasan</span><span class="nav-label-mobile">Ringkas</span></span></button>
+          <button class="nav-link" data-view="pos" aria-label="Kasir POS"><span class="nav-icon">＋</span><span class="nav-label"><span class="nav-label-full">Kasir POS</span><span class="nav-label-mobile">Kasir</span></span></button>
+          <button class="nav-link" data-view="inventory" aria-label="Inventori"><span class="nav-icon">▦</span><span class="nav-label"><span class="nav-label-full">Inventori</span><span class="nav-label-mobile">Barang</span></span></button>
+          <button class="nav-link management-only" data-view="members" aria-label="Member"><span class="nav-icon">♙</span><span class="nav-label"><span class="nav-label-full">Member</span><span class="nav-label-mobile">Member</span></span></button>
+          <button class="nav-link" data-view="accounting" aria-label="Akunting"><span class="nav-icon">◫</span><span class="nav-label"><span class="nav-label-full">Akunting</span><span class="nav-label-mobile">Akun</span></span></button>
+          <button id="users-nav-link" class="nav-link owner-only" data-view="users" aria-label="Pengguna dan aktivitas"><span class="nav-icon">♙</span><span class="nav-label"><span class="nav-label-full">Pengguna & aktivitas</span><span class="nav-label-mobile">Staf</span></span></button>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="sync-status"><span class="status-dot"></span><span>Database lokal aktif</span></div>
+          <button id="logout-button" class="logout-button">Keluar</button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div class="mobile-brand"><span class="brand-mark small">TL</span><strong>Toserba Lokal</strong></div>
+          <dialog id="store-context-dialog" class="store-context">
+            <div class="context-dialog-heading">
+              <div><p class="eyebrow">PENGATURAN TOKO</p><h2>Cabang & lokasi</h2></div>
+              <button id="close-store-context" class="icon-button" type="button" aria-label="Tutup">×</button>
+            </div>
+            <label id="store-picker">Cabang<select id="store-select" aria-label="Pilih cabang"></select></label>
+            <button id="add-store-button" class="button secondary context-add" type="button" aria-label="Tambah cabang">＋ Cabang</button>
+            <label>Lokasi<select id="location-select" aria-label="Pilih lokasi stok"></select></label>
+            <button id="add-location-button" class="button secondary context-add" type="button" aria-label="Tambah lokasi stok">＋ Lokasi</button>
+          </dialog>
+          <div class="topbar-info">
+            <div id="register-status" class="register-status closed">Kasir tutup</div>
+            <button id="register-toggle-button" class="button secondary register-toggle-button" type="button">Buka kasir</button>
+            <button id="open-store-context" class="button secondary context-open-button" type="button">Cabang & lokasi</button>
+            <span id="current-date"></span>
+            <span class="user-badge"><span id="user-avatar" class="avatar">P</span><span id="current-user">Pemilik</span></span>
+            <button id="topbar-logout-button" class="button secondary topbar-logout-button" type="button">Keluar</button>
+          </div>
+        </header>
+
+        <section id="view-dashboard" class="view active">
+          <div class="page-heading">
+            <div><p class="eyebrow">RINGKASAN TOKO</p><h1>Selamat bekerja 👋</h1><p class="muted">Pantau penjualan dan kondisi toko hari ini.</p></div>
+            <button class="button primary" data-go="pos">＋ Transaksi baru</button>
+          </div>
+          <div class="stats-grid">
+            <article class="stat-card"><div class="stat-label"><span class="stat-name">Penjualan hari ini</span><span class="stat-icon green">↗</span></div><div id="stat-sales" class="stat-value">Rp0</div><div class="stat-hint">Omzet tercatat hari ini</div></article>
+            <article class="stat-card"><div class="stat-label"><span class="stat-name">Transaksi</span><span class="stat-icon purple">▤</span></div><div id="stat-transactions" class="stat-value">0</div><div class="stat-hint">Transaksi hari ini</div></article>
+            <article class="stat-card"><div class="stat-label"><span class="stat-name">Jenis barang</span><span class="stat-icon blue">▦</span></div><div id="stat-products" class="stat-value">0</div><div class="stat-hint">Produk aktif</div></article>
+            <article class="stat-card"><div class="stat-label"><span class="stat-name">Stok menipis</span><span class="stat-icon orange">!</span></div><div id="stat-low-stock" class="stat-value">0</div><div class="stat-hint">Perlu segera diperiksa</div></article>
+          </div>
+          <div class="dashboard-grid">
+            <section class="panel">
+              <div class="panel-heading"><div><h2>Transaksi terbaru</h2><p class="muted">Aktivitas penjualan terkini</p></div><button class="text-button" data-go="accounting">Lihat akunting →</button></div>
+              <div id="recent-sales" class="table-wrap"></div>
+            </section>
+            <section class="panel quick-panel">
+              <div class="panel-heading"><div><h2>Akses cepat</h2><p class="muted">Pintasan operasional</p></div></div>
+              <button class="quick-link" data-go="pos"><span class="quick-icon green-bg">＋</span><span><strong>Buka kasir</strong><small>Catat penjualan baru</small></span><span class="chevron">›</span></button>
+              <button class="quick-link" data-go="inventory"><span class="quick-icon blue-bg">▦</span><span><strong>Kelola barang</strong><small>Stok dan harga produk</small></span><span class="chevron">›</span></button>
+              <button class="quick-link" data-go="accounting"><span class="quick-icon purple-bg">◫</span><span><strong>Lihat akunting</strong><small>Ringkasan laba dan biaya</small></span><span class="chevron">›</span></button>
+            </section>
+          </div>
+        </section>
+
+        <section id="view-pos" class="view">
+          <div class="page-heading"><div><p class="eyebrow">PENJUALAN</p><h1>Kasir POS</h1><p class="muted">Pilih barang untuk memulai transaksi.</p></div><div class="date-chip" id="pos-date"></div></div>
+          <div id="pos-register-notice" class="register-notice closed">Kasir sedang ditutup. Buka kasir untuk mulai membuat transaksi.</div>
+          <div class="pos-layout">
+            <form id="pos-scan-form" class="panel pos-scan-form">
+              <div class="pos-scan-heading"><strong>Scan barang</strong><span>Scan beberapa barcode berturut-turut</span></div>
+              <div class="pos-scan-row">
+                <input id="pos-scan-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Scan barcode barang">
+                <button id="pos-camera-scan-button" class="button secondary" type="button">Kamera HP</button>
+                <button class="button secondary" type="submit">Tambahkan</button>
+              </div>
+              <p id="pos-scan-status" class="pos-scan-status" role="status">Setiap scan akan menambahkan 1 barang ke keranjang.</p>
+            </form>
+            <section class="panel product-picker">
+              <div class="search-box"><span>⌕</span><input id="pos-search" type="search" placeholder="Cari nama atau barcode barang..."></div>
+              <div id="pos-products" class="pos-products"></div>
+            </section>
+            <section class="panel cart-panel">
+              <div class="panel-heading"><div><h2>Keranjang</h2><p id="cart-count" class="muted">0 barang</p></div><button id="clear-cart" class="text-button">Kosongkan</button></div>
+              <div id="cart-items" class="cart-items"></div>
+              <div class="cart-summary">
+                <div class="summary-row"><span>Subtotal</span><strong id="cart-subtotal">Rp0</strong></div>
+                <div id="cart-discount-row" class="summary-row cart-discount-row hidden"><span>Diskon promo</span><strong id="cart-discount">−Rp0</strong></div>
+                <div class="summary-row total-row"><span>Total pembayaran</span><strong id="cart-total">Rp0</strong></div>
+                <label for="customer-type">Jenis pelanggan</label>
+                <select id="customer-type"><option value="regular">Pelanggan biasa</option><option value="member">Member</option></select>
+                <div id="member-fields" class="member-fields hidden">
+                  <label for="member-phone">Nomor HP member</label>
+                  <div class="member-lookup-row">
+                    <input id="member-phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24" placeholder="Contoh: 081234567890">
+                    <button id="lookup-member-button" class="button secondary" type="button">Cari</button>
+                  </div>
+                  <p id="member-lookup-status" class="member-status" role="status">Cari member dengan nomor HP.</p>
+                  <label id="new-member-name-field" for="new-member-name" class="hidden">Nama member baru
+                    <input id="new-member-name" type="text" autocomplete="name" maxlength="100" placeholder="Nama pelanggan">
+                  </label>
+                  <p class="member-points-hint">Member mendapat 1 poin setiap belanja Rp10.000.</p>
+                </div>
+                <label for="payment-method">Metode pembayaran</label>
+                <select id="payment-method"><option>Tunai</option><option>QRIS</option><option>Kartu debit</option><option>Transfer</option></select>
+                <button id="checkout-button" class="button primary checkout-button" disabled>Bayar sekarang</button>
+              </div>
+            </section>
+          </div>
+          <section class="panel transaction-history-panel">
+            <div class="panel-heading"><div><h2>Riwayat transaksi</h2><p class="muted">Cari berdasarkan nomor nota, nama/nomor HP member, nama barang, kode, atau metode pembayaran.</p></div></div>
+            <form id="transaction-search-form" class="transaction-search-form">
+              <div class="search-box"><span>⌕</span><input id="transaction-search" type="search" maxlength="120" placeholder="Cari transaksi atau barang..."></div>
+              <label>Dari <input id="transaction-date-from" type="date"></label>
+              <label>Sampai <input id="transaction-date-to" type="date"></label>
+              <button class="button secondary" type="submit">Cari</button>
+            </form>
+            <div id="transaction-history" class="table-wrap"></div>
+          </section>
+        </section>
+
+        <section id="view-inventory" class="view">
+          <div class="page-heading"><div><p class="eyebrow">PENGELOLAAN BARANG</p><h1>Inventori</h1><p class="muted">Data produk dan harga katalog bersama; stok dan modal mengikuti cabang/lokasi terpilih.</p></div><div class="inventory-actions"><button id="stocktake-button" class="button secondary">▤ Opname stok</button><button id="receive-stock-button" class="button secondary">＋ Terima barang</button><button id="add-product-button" class="button primary">＋ Tambah barang</button></div></div>
+          <section class="panel">
+            <div class="inventory-toolbar"><div class="search-box"><span>⌕</span><input id="inventory-search" type="search" placeholder="Cari nama atau barcode barang..."></div><span id="inventory-count" class="muted"></span></div>
+            <div id="inventory-table" class="table-wrap"></div>
+          </section>
+          <section class="panel receipt-history-panel"><div class="panel-heading"><div><h2>Riwayat opname stok</h2><p class="muted">Penyesuaian stok per lokasi terpilih</p></div></div><div id="stocktake-history" class="table-wrap"></div></section>
+          <section class="panel receipt-history-panel"><div class="panel-heading"><div><h2>Penerimaan barang terbaru</h2><p class="muted">Barang yang masuk ke cabang dan lokasi terpilih</p></div></div><div id="receipt-history" class="table-wrap"></div></section>
+        </section>
+
+        <section id="view-members" class="view management-only">
+          <div class="page-heading"><div><p class="eyebrow">PELANGGAN</p><h1>Member</h1><p class="muted">Daftarkan member, cari dengan nama atau nomor HP, dan lihat saldo poin.</p></div></div>
+          <section class="panel member-registration-panel">
+            <div class="panel-heading"><div><h2>Daftarkan member</h2><p class="muted">Nomor HP harus unik. Poin diperoleh dari transaksi member di POS.</p></div></div>
+            <form id="member-registration-form" class="member-registration-form">
+              <label>Nama member<input name="name" maxlength="100" autocomplete="name" required></label>
+              <label>Nomor HP<input name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24" placeholder="Contoh: 081234567890" required></label>
+              <button class="button primary" type="submit">＋ Daftarkan member</button>
+              <p id="member-registration-status" class="member-status" role="status"></p>
+            </form>
+          </section>
+          <section class="panel member-list-panel">
+            <div class="panel-heading"><div><h2>Daftar member</h2><p id="member-count" class="muted">Member terdaftar</p></div></div>
+            <div class="inventory-toolbar"><div class="search-box"><span>⌕</span><input id="member-search" type="search" maxlength="120" placeholder="Cari nama atau nomor HP member..."></div></div>
+            <div id="members-table" class="table-wrap"></div>
+          </section>
+        </section>
+
+        <section id="view-accounting" class="view">
+          <div class="page-heading"><div><p class="eyebrow">KEUANGAN TOKO</p><h1>Akunting</h1><p class="muted">Pantau omzet, modal barang, pengeluaran, dan laba.</p></div><button id="add-expense-button" class="button secondary">＋ Catat pengeluaran</button></div>
+          <div class="period-control"><button class="period-button" data-period="today">Hari ini</button><button class="period-button active" data-period="month">Bulan ini</button></div>
+          <div class="stats-grid accounting-stats">
+            <article class="stat-card"><div class="stat-label">Omzet</div><div id="account-revenue" class="stat-value">Rp0</div><div id="account-transactions" class="stat-hint">0 transaksi</div></article>
+            <article class="stat-card"><div class="stat-label">Modal barang terjual</div><div id="account-cost" class="stat-value">Rp0</div><div class="stat-hint">Harga modal barang</div></article>
+            <article class="stat-card"><div class="stat-label">Pengeluaran</div><div id="account-expenses" class="stat-value">Rp0</div><div class="stat-hint">Biaya operasional</div></article>
+            <article class="stat-card highlight-stat"><div class="stat-label">Laba bersih*</div><div id="account-profit" class="stat-value">Rp0</div><div class="stat-hint">Omzet − modal − pengeluaran</div></article>
+          </div>
+          <section class="panel accounting-sales-panel">
+            <div class="panel-heading"><div><h2>Riwayat transaksi penjualan</h2><p id="account-sales-count" class="muted">Transaksi pada periode terpilih</p></div></div>
+            <div class="search-box accounting-sales-search"><span>⌕</span><input id="account-sales-search" type="search" maxlength="120" placeholder="Cari nomor nota, barang, atau member..."></div>
+            <div id="account-sales-history" class="table-wrap"></div>
+          </section>
+          <section class="panel ledger-panel"><div class="panel-heading"><div><h2>Buku kas</h2><p class="muted">Maksimal 50 transaksi pada periode terpilih</p></div></div><div id="ledger-table" class="table-wrap"></div><p class="accounting-note">*Laba bersih adalah estimasi sebelum pajak dan penyesuaian akuntansi lainnya.</p></section>
+        </section>
+
+        <section id="view-users" class="view owner-only">
+          <div class="page-heading"><div><p class="eyebrow">AKSES & AUDIT</p><h1>Pengguna & aktivitas</h1><p class="muted">Kelola akun staf dan cabang penugasannya; manajer dan kasir otomatis masuk ke cabang tersebut.</p></div><button id="add-user-button" class="button primary">＋ Tambah pengguna</button></div>
+          <section class="panel">
+            <div class="panel-heading"><div><h2>Akun pengguna</h2><p class="muted">Hanya pemilik dapat berpindah cabang. Setiap manajer dan kasir ditugaskan tepat ke satu cabang.</p></div></div>
+            <div id="users-table" class="table-wrap"></div>
+          </section>
+          <section class="panel receipt-history-panel">
+            <div class="panel-heading"><div><h2>Log aktivitas</h2><p class="muted">Perubahan data dan transaksi terbaru, maksimal 200 aktivitas.</p></div><button id="refresh-audit-button" class="text-button">Muat ulang</button></div>
+            <div id="audit-table" class="table-wrap"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="product-dialog" class="modal">
+      <form id="product-form" method="dialog">
+        <div class="modal-heading"><div><p class="eyebrow">DATA PRODUK</p><h2 id="product-dialog-title">Tambah barang</h2></div><button type="button" class="icon-button" data-close="product-dialog" aria-label="Tutup">×</button></div>
+        <input type="hidden" name="id">
+        <div class="sku-field">
+          <label for="product-codes">Barcode / SKU</label>
+          <div class="sku-input-row">
+            <textarea id="product-codes" name="productCodes" rows="3" autocomplete="off" placeholder="Satu kode per baris; ketik atau scan barcode" required></textarea>
+            <button id="scan-barcode-button" class="button secondary" type="button">Kamera</button>
+            <button id="focus-barcode-scanner" class="button secondary" type="button">Scanner USB</button>
+          </div>
+          <small class="field-hint">Masukkan satu atau beberapa kode, masing-masing pada baris terpisah. Tidak ada panjang minimum; maksimal 1.000 karakter per kode. Semua kode merujuk ke stok dan harga produk yang sama.</small>
+        </div>
+        <label>Nama barang<input name="name" maxlength="120" required></label>
+        <label>Kategori<input name="category" maxlength="80" value="Umum" required></label>
+        <div class="form-grid"><label>Harga jual (Rp)<input name="sellingPrice" type="number" min="0" step="1" required></label><label>Harga modal (Rp)<input name="costPrice" type="number" min="0" step="1" required></label></div>
+        <label>Diskon produk (%)<input name="promoDiscountPercent" type="number" min="0" max="100" step="1" value="0"></label>
+        <div class="form-grid"><label>Beli (unit)<input name="promoBuyQuantity" type="number" min="0" max="10000" step="1" value="0"></label><label>Gratis (unit)<input name="promoFreeQuantity" type="number" min="0" max="10000" step="1" value="0"></label></div>
+        <div class="form-grid"><label>Promo mulai<input name="promoStartDate" type="date"></label><label>Promo berakhir<input name="promoEndDate" type="date"></label></div>
+        <small class="field-hint">Diskon dan promo beli X gratis Y memakai masa berlaku yang sama. Jika keduanya cocok, kasir memilih diskon terbesar tanpa menumpuknya. Kosongkan tanggal agar promo berlaku terus.</small>
+        <div class="form-grid"><label>Jumlah stok<input name="stock" type="number" min="0" step="1" required></label><label>Stok minimum<input name="minStock" type="number" min="0" step="1" value="5" required></label></div>
+        <p id="product-error" class="form-error" role="alert"></p>
+        <div class="modal-actions"><button type="button" class="button secondary" data-close="product-dialog">Batal</button><button class="button primary" type="submit">Simpan barang</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="register-dialog" class="modal">
+      <form id="register-form" method="dialog">
+        <div class="modal-heading"><div><p class="eyebrow">SHIFT KASIR</p><h2 id="register-dialog-title">Buka kasir</h2><p id="register-dialog-copy" class="muted"></p></div><button type="button" class="icon-button" data-close="register-dialog" aria-label="Tutup">×</button></div>
+        <label id="register-cash-field"><span id="register-cash-label">Modal kas awal (Rp, opsional)</span><input name="cash" type="number" min="0" step="1" placeholder="Boleh dikosongkan"></label>
+        <div id="register-close-summary" class="register-close-summary hidden"></div>
+        <p id="register-error" class="form-error" role="alert"></p>
+        <div class="modal-actions"><button type="button" class="button secondary" data-close="register-dialog">Batal</button><button id="register-submit-button" class="button primary" type="submit">Buka kasir</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="user-dialog" class="modal">
+      <form id="user-form" method="dialog">
+        <div class="modal-heading"><div><p class="eyebrow">PENGELOLAAN AKUN</p><h2 id="user-dialog-title">Tambah pengguna</h2></div><button type="button" class="icon-button" data-close="user-dialog" aria-label="Tutup">×</button></div>
+        <input type="hidden" name="id">
+        <label>Nama pengguna<input name="username" maxlength="40" autocomplete="off" pattern="[A-Za-z0-9._-]+" required></label>
+        <label>Nama tampilan<input name="displayName" maxlength="100" required></label>
+        <label>Peran<select name="role" required><option value="manager">Manajer</option><option value="cashier">Kasir</option></select></label>
+        <label>PIN <span id="user-pin-hint">(6–12 angka)</span><input name="pin" inputmode="numeric" pattern="[0-9]*" minlength="6" maxlength="12" type="password" autocomplete="new-password"></label>
+        <label>Status akun<select name="active"><option value="true">Aktif</option><option value="false">Nonaktif</option></select></label>
+        <label>Cabang penugasan<select id="user-store-select" name="storeId" required></select></label>
+        <p id="user-error" class="form-error" role="alert"></p>
+        <div class="modal-actions"><button type="button" class="button secondary" data-close="user-dialog">Batal</button><button class="button primary" type="submit">Simpan pengguna</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="stocktake-dialog" class="modal stocktake-modal">
+      <form id="stocktake-form" method="dialog">
+        <div class="modal-heading"><div><p class="eyebrow">INVENTORI</p><h2>Opname stok</h2><p class="muted">Centang barang yang sudah dihitung. Stok berubah setelah opname disimpan.</p></div><button type="button" class="icon-button" data-close="stocktake-dialog" aria-label="Tutup">×</button></div>
+        <div class="search-box"><span>⌕</span><input id="stocktake-search" type="search" placeholder="Cari nama atau barcode barang..."></div>
+        <div id="stocktake-table" class="table-wrap stocktake-table"></div>
+        <label>Catatan (opsional)<input name="note" maxlength="200" placeholder="Contoh: opname rak minuman"></label>
+        <p id="stocktake-summary" class="muted">Belum ada barang dipilih.</p>
+        <p id="stocktake-error" class="form-error" role="alert"></p>
+        <div class="modal-actions"><button type="button" class="button secondary" data-close="stocktake-dialog">Batal</button><button id="save-stocktake-button" class="button primary" type="submit" disabled>Simpan opname</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="stocktake-detail-dialog" class="modal stocktake-modal">
+      <div class="modal-heading"><div><p class="eyebrow">RIWAYAT INVENTORI</p><h2>Rincian opname</h2><p id="stocktake-detail-summary" class="muted"></p></div><button type="button" class="icon-button" data-close="stocktake-detail-dialog" aria-label="Tutup">×</button></div>
+      <div id="stocktake-detail-table" class="table-wrap"></div>
+      <div class="modal-actions"><button type="button" class="button secondary" data-close="stocktake-detail-dialog">Tutup</button></div>
+    </dialog>
+
+    <dialog id="store-dialog" class="modal">
+      <form id="store-form" method="dialog">
+        <div class="modal-heading"><div><p class="eyebrow">PENGELOLAAN CABANG</p><h2>Tambah cabang</h2></div><button type="button" class="icon-button" data-close="store-dialog" aria-label="Tutup">×</button></div>
+        <label>Nama cabang<input name="name" maxlength="100" placeholder="Contoh: Toserba Cabang Selatan" required></label>
+        <p id="store-error" class="form-error" role="alert"></p>
+        <div class="modal-actions"><button type="button" class="button secondary" data-close="store-dialog">Batal</button><button class="button primary" type="submit">Buat cabang</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="location-dialog" class="modal">
+      <form id="location-form" method="dialog">
+        <div class="modal-heading"><div><p class="eyebrow">STOK CABANG</p><h2>Tambah lokasi</h2></div><button type="button" class="icon-button" data-close="location-dialog" aria-label="Tutup">×</button></div>
+        <label>Nama lokasi<input name="name" maxlength="100" placeholder="Contoh: Gudang belakang atau Rak A1" required></label>
+        <label>Jenis lokasi<select name="type"><option value="warehouse">Gudang</option><option value="shelf">Rak toko</option><option value="store">Toko</option></select></label>
+        <p id="location-error" class="form-error" role="alert"></p>
+        <div class="modal-actions"><button type="button" class="button secondary" data-close="location-dialog">Batal</button><button class="button primary" type="submit">Buat lokasi</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="receiving-dialog" class="modal">
+      <form id="receiving-form" method="dialog">
+        <div class="modal-heading"><div><p class="eyebrow">PEMBELIAN & STOK</p><h2>Terima barang</h2></div><button type="button" class="icon-button" data-close="receiving-dialog" aria-label="Tutup">×</button></div>
+        <label>Supplier<input name="supplierName" list="supplier-list" maxlength="120" placeholder="Ketik nama supplier" required><datalist id="supplier-list"></datalist></label>
+        <label>Nomor faktur (opsional)<input name="invoiceNumber" maxlength="80"></label>
+        <label>Barang<select name="productId" required></select></label>
+        <div class="form-grid"><label>Jumlah diterima<input name="quantity" type="number" min="1" step="1" required></label><label>Harga modal per unit (Rp)<input name="unitCost" type="number" min="0" step="1" required></label></div>
+        <p id="receiving-error" class="form-error" role="alert"></p>
+        <div class="modal-actions"><button type="button" class="button secondary" data-close="receiving-dialog">Batal</button><button class="button primary" type="submit">Catat penerimaan</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="barcode-camera-dialog" class="modal camera-modal">
+      <div class="modal-heading">
+        <div><p class="eyebrow">PEMINDAIAN PRODUK</p><h2 id="barcode-camera-title">Scan barcode barang</h2></div>
+        <button type="button" class="icon-button" data-close="barcode-camera-dialog" aria-label="Tutup">×</button>
+      </div>
+      <video id="barcode-camera-video" class="barcode-video" autoplay muted playsinline></video>
+      <p id="barcode-camera-status" class="camera-status" role="status">Mengaktifkan kamera...</p>
+      <div class="modal-actions"><button type="button" class="button secondary" data-close="barcode-camera-dialog">Batal</button></div>
+    </dialog>
+
+    <dialog id="expense-dialog" class="modal">
+      <form id="expense-form" method="dialog">
+        <div class="modal-heading"><div><p class="eyebrow">BUKU KAS</p><h2>Catat pengeluaran</h2></div><button type="button" class="icon-button" data-close="expense-dialog" aria-label="Tutup">×</button></div>
+        <label>Kategori<select name="category" required><option value="Sewa">Sewa</option><option value="Listrik & air">Listrik & air</option><option value="Gaji">Gaji</option><option value="Transportasi">Transportasi</option><option value="Perlengkapan">Perlengkapan</option><option value="Lainnya">Lainnya</option></select></label>
+        <label>Jumlah (Rp)<input name="amount" type="number" min="1" step="1" required></label>
+        <label>Catatan (opsional)<input name="note" maxlength="200" placeholder="Contoh: tagihan bulan November"></label>
+        <p id="expense-error" class="form-error" role="alert"></p>
+        <div class="modal-actions"><button type="button" class="button secondary" data-close="expense-dialog">Batal</button><button class="button primary" type="submit">Simpan pengeluaran</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="receipt-dialog" class="modal receipt-modal">
+      <div id="receipt-content" class="receipt-content"></div>
+      <div class="modal-actions"><button class="button secondary" data-close="receipt-dialog">Tutup</button><button id="print-receipt" class="button primary">Cetak struk</button></div>
+    </dialog>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="/vendor/zxing-browser.min.js" defer></script>
+    <script src="/app.js" defer></script>
+  </body>
+</html>

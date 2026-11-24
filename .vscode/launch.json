@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Toserba Lokal (HTTPS LAN)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/server.js",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "TLS_CERT_FILE": "${env:USERPROFILE}\\.toserba-certs\\lan.pem",
+        "TLS_KEY_FILE": "${env:USERPROFILE}\\.toserba-certs\\lan-key.pem"
+      },
+      "console": "integratedTerminal",
+      "restart": false
+    }
+  ]
+}

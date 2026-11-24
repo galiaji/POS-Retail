@@ -1,0 +1,17 @@
+{
+  "name": "toserba-lokal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aplikasi retail lokal untuk POS, inventori, dan akunting",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "dependencies": {
+    "@zxing/browser": "0.1.5",
+    "@zxing/library": "0.21.3"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  }
+}
